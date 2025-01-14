@@ -37,19 +37,25 @@ col1, col2, col3, col4 = st.columns(4)
 
 with col1:
     last_total_cases = country_data['total_cases'].iloc[-1]
-    st.metric("Toplam Vaka", f"{int(last_total_cases):,}")
+    st.metric("Toplam Vaka", f"{int(last_total_cases if not pd.isna(last_total_cases) else 0):,}")
 
 with col2:
     last_total_deaths = country_data['total_deaths'].iloc[-1]
-    st.metric("Toplam Ölüm", f"{int(last_total_deaths):,}")
+    st.metric("Toplam Ölüm", f"{int(last_total_deaths if not pd.isna(last_total_deaths) else 0):,}")
 
 with col3:
     last_vaccinations = country_data['people_vaccinated'].iloc[-1]
-    st.metric("Aşılanan Kişi", f"{int(last_vaccinations):,}")
+    if pd.isna(last_vaccinations):
+        st.metric("Aşılanan Kişi", "Veri yok")
+    else:
+        st.metric("Aşılanan Kişi", f"{int(last_vaccinations):,}")
 
 with col4:
-    mortality_rate = (last_total_deaths / last_total_cases) * 100
-    st.metric("Ölüm Oranı", f"{mortality_rate:.2f}%")
+    if pd.isna(last_total_deaths) or pd.isna(last_total_cases) or last_total_cases == 0:
+        st.metric("Ölüm Oranı", "Hesaplanamıyor")
+    else:
+        mortality_rate = (last_total_deaths / last_total_cases) * 100
+        st.metric("Ölüm Oranı", f"{mortality_rate:.2f}%")
 
 # Time series plot
 st.subheader("Zaman Serisi Analizi")
